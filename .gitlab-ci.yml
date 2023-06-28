@@ -1,0 +1,15 @@
+stages:
+  - release
+
+release:
+  stage: release
+  image:
+    name: goreleaser/goreleaser
+    entrypoint: ['']
+  only:
+    - tags
+  variables:    
+    GITLAB_TOKEN: $CI_JOB_TOKEN
+    GIT_DEPTH: 0
+  script:
+    - goreleaser release --clean

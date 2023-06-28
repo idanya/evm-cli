@@ -1,0 +1,25 @@
+project_name: evm-cli
+# gitlab_urls:
+#   api: https://gitlab.com/api/v4/
+#   download: https://gitlab.com
+#   skip_tls_verify: false
+#   use_package_registry: true
+#   use_job_token: true
+builds:
+  - env: [CGO_ENABLED=0]
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+nfpms:
+- maintainer: Idan Yael <idanyael@fireblocks.com>
+  description: evm utils command line
+  homepage: https://gitlab.com/fireblocks/web3/utils/evm-cli
+  license: MIT
+  formats:
+  - deb
+  - rpm
+  - apk
