@@ -10,8 +10,7 @@ release:
     entrypoint: ['']
   only:
     - tags
-  variables:    
-    GITLAB_TOKEN: $CI_JOB_TOKEN
+  variables:        
     GIT_DEPTH: 0
   script:
     - goreleaser release --clean
