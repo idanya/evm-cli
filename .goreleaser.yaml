@@ -1,10 +1,10 @@
 project_name: evm-cli
-# gitlab_urls:
-#   api: https://gitlab.com/api/v4/
-#   download: https://gitlab.com
-#   skip_tls_verify: false
-#   use_package_registry: true
-#   use_job_token: true
+gitlab_urls:
+  api: https://gitlab.com/api/v4/
+  download: https://gitlab.com
+  skip_tls_verify: false
+  use_package_registry: true
+  use_job_token: true
 builds:
   - env: [CGO_ENABLED=0]
     goos:
