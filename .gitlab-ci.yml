@@ -2,6 +2,8 @@ stages:
   - release
 
 release:
+  tags:
+    - build-shell
   stage: release
   image:
     name: goreleaser/goreleaser
