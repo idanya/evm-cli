@@ -56,4 +56,4 @@ brews:
       git:
         url: 'git@gitlab.com:fireblocks/web3/utils/evm-cli.git'
         private_key: '{{ .Env.DEPLOY_KEY }}'
-        ssh_command: 'ssh -i {{ .Env.DEPLOY_KEY }} -o SomeOption=yes'
+        ssh_command: 'ssh -i {{ .Env.DEPLOY_KEY }} -o StrictHostKeyChecking=accept-new -F /dev/null'
