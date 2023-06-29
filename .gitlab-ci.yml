@@ -11,8 +11,8 @@ release:
   only:
     - tags
   variables:    
-    GITLAB_TOKEN: $GITLAB_TOKEN
-    DEPLOY_KEY: $DEPLOY_KEY
+    # GITLAB_TOKEN: $GITLAB_TOKEN
+    # DEPLOY_KEY: $DEPLOY_KEY
     GIT_DEPTH: 0
   script:
-    - goreleaser release --rm-dist
+    - goreleaser release --clean

@@ -91,7 +91,7 @@ brews:
     # Repository to push the generated files to.
     repository:      
       owner: idanya
-      name: fireblocks/web3/utils/evm-cli
+      name: evm-cli
       branch: main      
 
       pull_request:        
@@ -99,7 +99,7 @@ brews:
         draft: true
         base:
           owner: goreleaser
-          name: fireblocks/web3/utils/evm-cli
+          name: evm-cli
           branch: main
 
       # Clone, create the file, commit and push, to a regular Git repository.
@@ -131,4 +131,4 @@ brews:
         #
         # Default: 'ssh -i {{ .KeyPath }} -o StrictHostKeyChecking=accept-new -F /dev/null'
         # Templates: allowed
-        ssh_command: 'ssh -i {{ .Env.DEPLOY_KEY }} -o SomeOption=yes'
+        # ssh_command: 'ssh -i {{ .Env.DEPLOY_KEY }} -o SomeOption=yes'
