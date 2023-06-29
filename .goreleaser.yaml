@@ -12,18 +12,18 @@ builds:
       - amd64
       # - arm64
 nfpms:
-- maintainer: Idan Yael <idanyael@fireblocks.com>
-  description: evm utils command line
-  homepage: https://gitlab.com/fireblocks/web3/utils/evm-cli
-  license: MIT
-  formats:
-  - deb
-  - rpm
-  - apk
+  - maintainer: Idan Yael <idanyael@fireblocks.com>
+    description: evm utils command line
+    homepage: https://gitlab.com/fireblocks/web3/utils/evm-cli
+    license: MIT
+    formats:
+    - deb
+    - rpm
+    - apk
 
 brews:
   - tap:
-      owner: "fireblocks/web3/utils/evm-cli"
+      owner: "fireblocks/web3/utils"
       name: "evm-cli"
       branch: main
       token: "{{ .Env.GITLAB_TOKEN }}"
