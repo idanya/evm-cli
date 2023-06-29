@@ -5,11 +5,11 @@
 class EvmCli < Formula
   desc "EVM utils command line"
   homepage "https://gitlab.com/fireblocks/web3/utils/evm-cli"
-  version "1.0.16"
+  version "1.0.17"
 
   on_macos do
-    url "https://gitlab.com/fireblocks/web3/utils/evm-cli/releases/download/v1.0.16/evm-cli_1.0.16_darwin_amd64.tar.gz", using: CurlDownloadStrategy
-    sha256 "66e79dc1667d08510d7a4c34494f73f00ab0d43833548e8de27d80eb7f0eac10"
+    url "https://gitlab.com/fireblocks/web3/utils/evm-cli/releases/v1.0.17/downloads/evm-cli_1.0.17_darwin_amd64.tar.gz", using: CurlDownloadStrategy
+    sha256 "e0b48bf6195a9ac3b33f826881da984e1971c86c4388392b7c1872d1d03006d0"
 
     def install
       bin.install "evm-cli"
@@ -28,8 +28,8 @@ class EvmCli < Formula
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://gitlab.com/fireblocks/web3/utils/evm-cli/releases/download/v1.0.16/evm-cli_1.0.16_linux_amd64.tar.gz", using: CurlDownloadStrategy
-      sha256 "b4c8266fb099358e30f2583defa57fbf8ac078c3b66e097e038dab072e76308f"
+      url "https://gitlab.com/fireblocks/web3/utils/evm-cli/releases/v1.0.17/downloads/evm-cli_1.0.17_linux_amd64.tar.gz", using: CurlDownloadStrategy
+      sha256 "73bacaf7971384ef6bf3d0b97612785f342c50be46106a1805ad9440ea69c8da"
 
       def install
         bin.install "evm-cli"
