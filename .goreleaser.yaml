@@ -1,4 +1,7 @@
 project_name: evm-cli
+gitlab_urls:
+  use_package_registry: true
+  
 builds:
   - env: [CGO_ENABLED=0]
     goos:
@@ -83,12 +86,6 @@ nfpms:
 #     #
 #     # Templates: allowed
 #     skip_upload: true
-
-#     # Custom block for brew.
-#     # Can be used to specify alternate downloads for devel or head releases.
-#     custom_block: |
-#       head "https://github.com/some/package.git"
-#       ...
   
 
 #     # Repository to push the generated files to.
