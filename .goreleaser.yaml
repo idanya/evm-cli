@@ -22,38 +22,19 @@ nfpms:
   - apk
 
 brews:
-  - name: evm-cli
-    ids: []    
-    goarm: 6    
-    goamd64: v1
-    url_template: "https://gitlab.com/fireblocks/web3/utils/evm-cli/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    download_strategy: CurlDownloadStrategy
-    custom_require: custom_download_strategy
-
+  - tap:
+      owner: "fireblocks/web3/utils/evm-cli"
+      name: "evm-cli"
+      branch: main
+      token: "{{ .Env.GITLAB_TOKEN }}"
+    name: evm-cli
+    folder: Formula
     commit_author:
       name: Idan Yael
       email: idanyael@fireblocks.com
+    goarm: 6
+    download_strategy: CurlDownloadStrategy
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    folder: Formula
-    caveats: "How to use this binary"
+    url_template: "https://gitlab.com/fireblocks/web3/utils/evm-cli/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    description: "EVM utils command line"
     homepage: "https://gitlab.com/fireblocks/web3/utils/evm-cli"
-    description: "Software to create fast and easy drum rolls."
-    license: "MIT"
-    skip_upload: false
-    repository:
-      owner: idanya
-      name: evm-cli
-      branch: main      
-
-      pull_request:        
-        enabled: true
-        draft: true
-        base:
-          owner: goreleaser
-          name: evm-cli
-          branch: main
-
-      git:
-        url: 'git@gitlab.com:fireblocks/web3/utils/evm-cli.git'
-        private_key: '{{ .Env.DEPLOY_KEY }}'
-        ssh_command: 'ssh -i {{ .Env.DEPLOY_KEY }} -o StrictHostKeyChecking=accept-new -F /dev/null'
