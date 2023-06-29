@@ -95,11 +95,11 @@ brews:
       branch: main      
 
       pull_request:        
-        enabled: false
+        enabled: true
         draft: true
         base:
           owner: goreleaser
-          name: my-repo
+          name: fireblocks/web3/utils/evm-cli
           branch: main
 
       # Clone, create the file, commit and push, to a regular Git repository.
@@ -123,7 +123,7 @@ brews:
         # WARNING: do not expose your private key in the configuration file!
         #
         # Templates: allowed
-        # private_key: '{{ .Env.PRIVATE_KEY_PATH }}'
+        private_key: '{{ .Env.DEPLOY_KEY }}'
 
         # The value to be passed to `GIT_SSH_COMMAND`.
         # This is mainly used to specify the SSH private key used to pull/push
@@ -131,4 +131,4 @@ brews:
         #
         # Default: 'ssh -i {{ .KeyPath }} -o StrictHostKeyChecking=accept-new -F /dev/null'
         # Templates: allowed
-        # ssh_command: 'ssh -i {{ .Env.KEY }} -o SomeOption=yes'
+        ssh_command: 'ssh -i {{ .Env.DEPLOY_KEY }} -o SomeOption=yes'
