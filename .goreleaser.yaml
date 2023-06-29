@@ -40,7 +40,7 @@ brews:
     description: "Software to create fast and easy drum rolls."
     license: "MIT"
     skip_upload: false
-    repository:      
+    repository:
       owner: idanya
       name: evm-cli
       branch: main      
@@ -54,6 +54,6 @@ brews:
           branch: main
 
       git:
-        url: 'ssh://git@gitlab.com:fireblocks/web3/utils/evm-cli.git'
+        url: 'git@gitlab.com:fireblocks/web3/utils/evm-cli.git'
         private_key: '{{ .Env.DEPLOY_KEY }}'
         ssh_command: 'ssh -i {{ .Env.DEPLOY_KEY }} -o SomeOption=yes'
