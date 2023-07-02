@@ -34,7 +34,7 @@ func Execute(client nodes.NodeClient, decompiler *decompiler.Decompiler) {
 
 	contractCmd := NewContractCommands(nodes.NodeClientFactory, decompiler)
 	rootContractCmd := contractCmd.GetRootCommand()
-	// rootContractCmd.AddCommand(contractCmd.GetContractABICommand())
+	rootContractCmd.AddCommand(contractCmd.GetContractOpCodeCommand())
 	rootContractCmd.AddCommand(contractCmd.GetContractFunctionListCommand())
 	rootContractCmd.AddCommand(contractCmd.GetContractExecCommand())
 	rootCmd.AddCommand(rootContractCmd)

@@ -63,6 +63,34 @@ func openInEditor(text []byte) error {
 	return cmd.Run()
 }
 
+func (cc *ContractCommands) GetContractOpCodeCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "opcode <address>",
+		Short: "Get opcode",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			chainId, err := cmd.Flags().GetUint("chain-id")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			log.Printf("Fetching contract bytecode")
+			bytecode, err := cc.clientFactory(chainId).GetContractCode(context.Background(), args[0])
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			log.Printf("Decoding...")
+			opcode, err := cc.decompiler.Disassemble(bytecode)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			openInEditor([]byte(strings.Join(opcode, "\n")))
+		},
+	}
+}
+
 func (cc *ContractCommands) GetContractFunctionListCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "func-list <address>",
@@ -91,7 +119,6 @@ func (cc *ContractCommands) GetContractFunctionListCommand() *cobra.Command {
 			}
 		},
 	}
-
 }
 
 // func (cc *ContractCommands) GetContractABICommand() *cobra.Command {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/openchain"
 )
 
@@ -22,4 +23,18 @@ func TestParseBytecode(t *testing.T) {
 	for _, line := range parsed {
 		fmt.Println(line.String())
 	}
+}
+
+
+func TestDisassemble(t *testing.T) {
+	openchainClient := openchain.NewClient()
+	decompiler := NewDecompiler(openchainClient)
+
+	script, _ := hex.DecodeString(bytecode)
+	parsed, _ := decompiler.Disassemble(script)
+	assert.Equal(t, 5477, len(parsed))
+
+	funcSigs, _ := decompiler.extractPush4bytes(script)
+	assert.Equal(t, 35, len(funcSigs))
+	
 }

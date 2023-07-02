@@ -1,3 +1,2 @@
 ### Install
-brew tap utils/evm-cli git@gitlab.com:fireblocks/web3/utils/evm-cli.git
-brew install evm-cli
+GOPRIVATE=gitlab.com/fireblocks/* go install gitlab.com/fireblocks/web3/utils/evm-cli@latest

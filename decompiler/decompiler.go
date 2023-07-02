@@ -102,22 +102,22 @@ func (d *Decompiler) extractPush4bytes(bytecode []byte) ([]string, error) {
 // }
 
 // // Disassemble returns all disassembled EVM instructions in human-readable format.
-// func Disassemble(script []byte) ([]string, error) {
-// 	instrs := make([]string, 0)
+func (d *Decompiler) Disassemble(script []byte) ([]string, error) {
+	instrs := make([]string, 0)
 
-// 	it := NewInstructionIterator(script)
-// 	for it.Next() {
-// 		if it.Arg() != nil && 0 < len(it.Arg()) {
-// 			instrs = append(instrs, fmt.Sprintf("%05x: %v %#x\n", it.PC(), it.Op(), it.Arg()))
-// 		} else {
-// 			instrs = append(instrs, fmt.Sprintf("%05x: %v\n", it.PC(), it.Op()))
-// 		}
-// 	}
-// 	if err := it.Error(); err != nil {
-// 		return nil, err
-// 	}
-// 	return instrs, nil
-// }
+	it := NewInstructionIterator(script)
+	for it.Next() {
+		if it.Arg() != nil && 0 < len(it.Arg()) {
+			instrs = append(instrs, fmt.Sprintf("%05x: %v %#x\n", it.PC(), it.Op(), it.Arg()))
+		} else {
+			instrs = append(instrs, fmt.Sprintf("%05x: %v\n", it.PC(), it.Op()))
+		}
+	}
+	if err := it.Error(); err != nil {
+		return nil, err
+	}
+	return instrs, nil
+}
 
 // func DisassembleOpType(script []byte, filter vm.OpCode) ([]string, error) {
 // 	instrs := make([]string, 0)
