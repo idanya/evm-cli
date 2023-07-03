@@ -30,7 +30,7 @@ func TestExecuteReadFunction(t *testing.T) {
 	assert.NotNil(t, balances)
 	assert.Len(t, balances, 1)
 
-	value, _ := new(big.Int).SetString("1364435517255", 10)
+	value, _ := new(big.Int).SetString("1384361901572", 10)
 	assert.Equal(t, value, balances[0])
 }
 

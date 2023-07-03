@@ -25,7 +25,7 @@ func NewInstructionIterator(code []byte) *instructionIterator {
 
 // Next returns true if there is a next instruction and moves on.
 func (it *instructionIterator) Next() bool {
-	if it.error != nil || uint64(len(it.code)) <= it.pc {
+	if uint64(len(it.code)) <= it.pc {
 		// We previously reached an error or the end.
 		return false
 	}
@@ -53,7 +53,7 @@ func (it *instructionIterator) Next() bool {
 		u := it.pc + 1 + a
 		if uint64(len(it.code)) <= it.pc || uint64(len(it.code)) < u {
 			it.error = fmt.Errorf("incomplete push instruction at %v", it.pc)
-			return false
+			return true
 		}
 		it.arg = it.code[it.pc+1 : u]
 	} else {

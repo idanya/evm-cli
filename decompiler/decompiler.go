@@ -68,7 +68,6 @@ func (d *Decompiler) extractPush4bytes(bytecode []byte) ([]string, error) {
 			if _, ok := hashes[functionHash]; !ok {
 				hashes[functionHash] = functionHash
 			}
-
 		}
 	}
 	if err := it.Error(); err != nil {
