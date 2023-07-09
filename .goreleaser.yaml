@@ -8,6 +8,13 @@ builds:
     goarch:
       - amd64
 
+brews:
+- name: evm-cli
+  homepage: https://github.com/idanya/homebrew-tools 
+  tap:
+    owner: idanya
+    name: homebrew-tools
+    
 archives:
   - format: tar.gz
     # this name template makes the OS and Arch compatible with the results of uname.
