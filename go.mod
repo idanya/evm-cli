@@ -1,16 +1,19 @@
-module gitlab.com/fireblocks/web3/utils/evm-cli
+module github.com/idanya/evm-cli
 
 go 1.20
 
 require (
 	github.com/ethereum/go-ethereum v1.12.0
+	github.com/h2non/gock v1.2.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 )
 
 require (

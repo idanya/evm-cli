@@ -7,8 +7,11 @@ var (
 	}
 )
 
-type NodeClientFactoryFunc = func(chainId uint) *EthereumNodeClient
-
-func NodeClientFactory(chainId uint) *EthereumNodeClient {
-	return NewEthereumNodeClient(ChainRpc[chainId])
+func NodeClientFactory(chainId uint, rpcUrl string) *EthereumNodeClient {
+	if rpcUrl != "" {
+		return NewEthereumNodeClient(rpcUrl)
+	} else if rpc, ok := ChainRpc[chainId]; ok {
+		return NewEthereumNodeClient(rpc)
+	}
+	panic("rpcUrl is not provided")
 }

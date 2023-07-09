@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/core/vm"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/openchain"
+	"github.com/idanya/evm-cli/clients/openchain"
 )
 
 type TranslatedFunction struct {
@@ -70,9 +70,9 @@ func (d *Decompiler) extractPush4bytes(bytecode []byte) ([]string, error) {
 			}
 		}
 	}
-	if err := it.Error(); err != nil {
-		return nil, err
-	}
+	// if err := it.Error(); err != nil {
+	// 	return nil, err
+	// }
 
 	keys := make([]string, 0, len(hashes))
 	for k := range hashes {
@@ -82,25 +82,6 @@ func (d *Decompiler) extractPush4bytes(bytecode []byte) ([]string, error) {
 	return keys, nil
 }
 
-// PrintDisassembled pretty-print all disassembled EVM instructions to stdout.
-// func PrintDisassembled(code string) error {
-// 	script, err := hex.DecodeString(code)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	it := NewInstructionIterator(script)
-// 	for it.Next() {
-// 		if it.Arg() != nil && 0 < len(it.Arg()) {
-// 			fmt.Printf("%05x: %v %#x\n", it.PC(), it.Op(), it.Arg())
-// 		} else {
-// 			fmt.Printf("%05x: %v\n", it.PC(), it.Op())
-// 		}
-// 	}
-// 	return it.Error()
-// }
-
-// // Disassemble returns all disassembled EVM instructions in human-readable format.
 func (d *Decompiler) Disassemble(script []byte) ([]string, error) {
 	instrs := make([]string, 0)
 
@@ -113,22 +94,7 @@ func (d *Decompiler) Disassemble(script []byte) ([]string, error) {
 		}
 	}
 	if err := it.Error(); err != nil {
-		return nil, err
+		instrs = append(instrs, fmt.Sprintf("[ERROR] %05x: %v err: %v\n", it.PC(), it.Op(), err))
 	}
 	return instrs, nil
 }
-
-// func DisassembleOpType(script []byte, filter vm.OpCode) ([]string, error) {
-// 	instrs := make([]string, 0)
-
-// 	it := NewInstructionIterator(script)
-// 	for it.Next() {
-// 		if it.Arg() != nil && 0 < len(it.Arg()) && it.op == filter {
-// 			instrs = append(instrs, fmt.Sprintf("%05x,%v,%#x\n", it.PC(), it.Op(), it.Arg()))
-// 		}
-// 	}
-// 	if err := it.Error(); err != nil {
-// 		return nil, err
-// 	}
-// 	return instrs, nil
-// }

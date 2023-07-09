@@ -1,19 +1,47 @@
 package openchain
 
-type LookupFunction struct {
-	Name     string `json:"name"`
-	Filtered bool   `json:"filtered"`
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+)
+
+type Client struct {
 }
 
-type LookupResponseResult struct {
-	Function map[string][]*LookupFunction `json:"function"`
+func NewClient() *Client {
+	return &Client{}
 }
 
-type LookupResponse struct {
-	Ok     bool                 `json:"ok"`
-	Result LookupResponseResult `json:"result"`
-}
+func (c *Client) LookupFunction(hash string) (*LookupFunction, error) {
+	requestUrl := fmt.Sprintf("https://api.openchain.xyz/signature-database/v1/lookup?function=%s&filter=true", hash)
+	url, err := url.Parse(requestUrl)
+	if err != nil {
+		return nil, err
+	}
 
-type OpenChainClient interface {
-	LookupFunction(hash string) (*LookupFunction, error)
+	resp, err := http.Get(url.String())
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var result LookupResponse
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, err
+	}
+
+	if result.Ok && len(result.Result.Function[hash]) > 0 {
+		return result.Result.Function[hash][0], nil
+	}
+
+	return nil, fmt.Errorf("Function not found")
 }

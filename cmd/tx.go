@@ -7,22 +7,25 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/nodes"
 )
 
 type TransactionCommands struct {
-	clientFactory nodes.NodeClientFactoryFunc
 }
 
-func NewTransactionCommands(clientFactory nodes.NodeClientFactoryFunc) *TransactionCommands {
-	return &TransactionCommands{clientFactory}
+func NewTransactionCommands() *TransactionCommands {
+	return &TransactionCommands{}
 }
 
 func (tx *TransactionCommands) GetRootCommand() *cobra.Command {
-	return &cobra.Command{
+	command := &cobra.Command{
 		Use:   "tx",
 		Short: "Transaction related commands",
 	}
+
+	command.AddCommand(tx.GetTransactionDataCommand())
+	command.AddCommand(tx.GetTransactionReceiptCommand())
+
+	return command
 }
 
 func (tx *TransactionCommands) GetTransactionDataCommand() *cobra.Command {
@@ -31,12 +34,8 @@ func (tx *TransactionCommands) GetTransactionDataCommand() *cobra.Command {
 		Short: "Get transaction data by hash",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			chainId, err := cmd.Flags().GetUint("chain-id")
-			if err != nil {
-				log.Fatal(err)
-			}
 
-			tx, err := tx.clientFactory(chainId).GetTransactionByHash(context.Background(), args[0])
+			tx, err := NodeClientFromViper().GetTransactionByHash(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -53,12 +52,7 @@ func (tx *TransactionCommands) GetTransactionReceiptCommand() *cobra.Command {
 		Short: "Get transaction receipt by hash",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			chainId, err := cmd.Flags().GetUint("chain-id")
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			receipt, err := tx.clientFactory(chainId).GetTransactionReceipt(context.Background(), args[0])
+			receipt, err := NodeClientFromViper().GetTransactionReceipt(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}

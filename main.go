@@ -1,15 +1,13 @@
 package main
 
 import (
+	"github.com/idanya/evm-cli/clients/openchain"
+	"github.com/idanya/evm-cli/cmd"
+	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/spf13/viper"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/nodes"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/openchain"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/cmd"
-	decompiler "gitlab.com/fireblocks/web3/utils/evm-cli/decompiler"
 )
 
 var (
-	client           = nodes.NewEthereumNodeClient("https://eth.llamarpc.com")
 	decompilerClient = decompiler.NewDecompiler(openchain.NewClient())
 )
 
@@ -18,5 +16,5 @@ func init() {
 }
 
 func main() {
-	cmd.Execute(client, decompilerClient)
+	cmd.Execute(decompilerClient)
 }

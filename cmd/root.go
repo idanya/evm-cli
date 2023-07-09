@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/spf13/cobra"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/nodes"
-	decompiler "gitlab.com/fireblocks/web3/utils/evm-cli/decompiler"
+	"github.com/spf13/viper"
 )
 
 var rootCmd = &cobra.Command{
@@ -17,27 +17,22 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute(client nodes.NodeClient, decompiler *decompiler.Decompiler) {
+func Execute(decompiler *decompiler.Decompiler) {
 
-	rootCmd.PersistentFlags().Uint("chain-id", 1, "Chain ID of the blockchain")
+	rootCmd.PersistentFlags().UintP("chain-id", "c", 1, "Chain ID of the blockchain")
+	rootCmd.PersistentFlags().String("rpc-url", "", "node RPC endpoint (overrides the chain ID)")
 
-	tx := NewTransactionCommands(nodes.NodeClientFactory)
-	rootTxCmd := tx.GetRootCommand()
-	rootTxCmd.AddCommand(tx.GetTransactionDataCommand())
-	rootTxCmd.AddCommand(tx.GetTransactionReceiptCommand())
-	rootCmd.AddCommand(rootTxCmd)
+	viper.BindPFlag("chainId", rootCmd.PersistentFlags().Lookup("chain-id"))
+	viper.BindPFlag("rpcUrl", rootCmd.PersistentFlags().Lookup("rpc-url"))
 
-	accountCmd := NewAccountCommands(nodes.NodeClientFactory)
-	rootAccountCmd := accountCmd.GetRootCommand()
-	rootAccountCmd.AddCommand(accountCmd.GetAccountNonceCommand())
-	rootCmd.AddCommand(rootAccountCmd)
+	tx := NewTransactionCommands()
+	rootCmd.AddCommand(tx.GetRootCommand())
 
-	contractCmd := NewContractCommands(nodes.NodeClientFactory, decompiler)
-	rootContractCmd := contractCmd.GetRootCommand()
-	rootContractCmd.AddCommand(contractCmd.GetContractOpCodeCommand())
-	rootContractCmd.AddCommand(contractCmd.GetContractFunctionListCommand())
-	rootContractCmd.AddCommand(contractCmd.GetContractExecCommand())
-	rootCmd.AddCommand(rootContractCmd)
+	accountCmd := NewAccountCommands()
+	rootCmd.AddCommand(accountCmd.GetRootCommand())
+
+	contractCmd := NewContractCommands(decompiler)
+	rootCmd.AddCommand(contractCmd.GetRootCommand())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

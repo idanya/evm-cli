@@ -4,63 +4,37 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"os/exec"
+	"regexp"
 	"strings"
 
+	decompiler "github.com/idanya/evm-cli/decompiler"
+	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/cobra"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/nodes"
-	decompiler "gitlab.com/fireblocks/web3/utils/evm-cli/decompiler"
 )
 
 const DefaultEditor = "vim"
 
 type ContractCommands struct {
-	clientFactory nodes.NodeClientFactoryFunc
-	decompiler    *decompiler.Decompiler
+	decompiler *decompiler.Decompiler
 }
 
-func NewContractCommands(clientFactory nodes.NodeClientFactoryFunc, decompiler *decompiler.Decompiler) *ContractCommands {
-	return &ContractCommands{clientFactory, decompiler}
+func NewContractCommands(decompiler *decompiler.Decompiler) *ContractCommands {
+	return &ContractCommands{decompiler}
 }
 
-func (tx *ContractCommands) GetRootCommand() *cobra.Command {
-	return &cobra.Command{
+func (cc *ContractCommands) GetRootCommand() *cobra.Command {
+	command := &cobra.Command{
 		Use:   "contract",
 		Short: "Contract related commands",
 	}
-}
 
-func openInEditor(text []byte) error {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "evm-cli-")
-	if err != nil {
-		log.Fatal("Cannot create temporary file", err)
-	}
+	command.AddCommand(cc.GetContractOpCodeCommand())
+	command.AddCommand(cc.GetContractFunctionListCommand())
+	command.AddCommand(cc.GetContractExecCommand())
+	command.AddCommand(cc.GetContractProxyImplementationCommand())
 
-	defer os.Remove(tmpFile.Name())
-
-	if _, err = tmpFile.Write(text); err != nil {
-		log.Fatal("Failed to write to temporary file", err)
-	}
-
-	editor := os.Getenv("EDITOR")
-	if editor == "" {
-		editor = DefaultEditor
-	}
-
-	executable, err := exec.LookPath(editor)
-	if err != nil {
-		log.Fatal("Cannot find editor", err)
-	}
-
-	cmd := exec.Command(executable, tmpFile.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	return cmd.Run()
+	return command
 }
 
 func (cc *ContractCommands) GetContractOpCodeCommand() *cobra.Command {
@@ -69,13 +43,8 @@ func (cc *ContractCommands) GetContractOpCodeCommand() *cobra.Command {
 		Short: "Get opcode",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			chainId, err := cmd.Flags().GetUint("chain-id")
-			if err != nil {
-				log.Fatal(err)
-			}
-
 			log.Printf("Fetching contract bytecode")
-			bytecode, err := cc.clientFactory(chainId).GetContractCode(context.Background(), args[0])
+			bytecode, err := NodeClientFromViper().GetContractCode(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -91,88 +60,97 @@ func (cc *ContractCommands) GetContractOpCodeCommand() *cobra.Command {
 	}
 }
 
+func (cc *ContractCommands) printContractFunctions(contractAddress string) {
+	log.Printf("Fetching contract bytecode")
+	bytecode, err := NodeClientFromViper().GetContractCode(context.Background(), contractAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Decoding 4byte function list")
+	funcList, err := cc.decompiler.Decompile(bytecode)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, function := range funcList {
+		fmt.Println(function.String())
+	}
+}
+
 func (cc *ContractCommands) GetContractFunctionListCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "func-list <address>",
 		Short: "Get function list",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			chainId, err := cmd.Flags().GetUint("chain-id")
-			if err != nil {
-				log.Fatal(err)
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler)
+
+			log.Printf("Checking if contract is proxy...")
+			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])
+			if err == nil && implementationAddress != "" {
+				log.Printf("Contract is proxy to %s, getting implementation functions...", implementationAddress)
+				cc.printContractFunctions(implementationAddress)
+				log.Printf("Getting proxy functions...")
+			} else {
+				log.Print("Contract is not proxy, getting functions...")
 			}
 
-			log.Printf("Fetching contract bytecode")
-			bytecode, err := cc.clientFactory(chainId).GetContractCode(context.Background(), args[0])
-			if err != nil {
-				log.Fatal(err)
-			}
+			cc.printContractFunctions(args[0])
 
-			log.Printf("Decoding 4byte function list")
-			funcList, err := cc.decompiler.Decompile(bytecode)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			for _, function := range funcList {
-				fmt.Println(function.String())
-			}
 		},
 	}
 }
 
-// func (cc *ContractCommands) GetContractABICommand() *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:   "abi <address>",
-// 		Short: "Get contract ABI",
-// 		Args:  cobra.ExactArgs(1),
-// 		Run: func(cmd *cobra.Command, args []string) {
-// 			contractABI, err := cc.client.GetContractABI(context.Background(), args[0])
-// 			if err != nil {
-// 				log.Fatal(err)
-// 			}
-
-// 			var prettyJSON bytes.Buffer
-// 			err = json.Indent(&prettyJSON, []byte(contractABI), "", "  ")
-
-// 			if err != nil {
-// 				log.Fatal(err)
-// 			}
-
-// 			err = openInEditor(prettyJSON.Bytes())
-// 			if err != nil {
-// 				log.Fatal(err)
-// 			}
-// 		},
-// 	}
-// }
-
-func (cc *ContractCommands) GetContractExecCommand() *cobra.Command {
-
-	cmd := &cobra.Command{
-		Use:   "exec <address> <function> <args>",
-		Short: "Run contract readonly method",
-		Args:  cobra.MinimumNArgs(2),
+func (cc *ContractCommands) GetContractProxyImplementationCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "proxy <address>",
+		Short: "Get proxy implementation address",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputTypes, _ := cmd.Flags().GetString("input-types")
-			outputTypes, _ := cmd.Flags().GetString("output-types")
 
-			chainId, err := cmd.Flags().GetUint("chain-id")
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler)
+			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}
-			response, err := cc.clientFactory(chainId).ExecuteReadFunction(context.Background(), args[0], strings.Split(inputTypes, ","), strings.Split(outputTypes, ","), args[1], args[2:]...)
+
+			log.Printf("Implementation address: %s", implementationAddress)
+		},
+	}
+}
+
+func (cc *ContractCommands) GetContractExecCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "exec",
+		Short:   "Run contract readonly method",
+		Example: "exec <address> \"<methodName(inType1,inType2,...)(outType1)>\" <method args>",
+		Args:    cobra.MinimumNArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			contractAddress := args[0]
+			contractMethod := args[1]
+			methodParams := args[2:]
+
+			var re = regexp.MustCompile(`(?m)(.*)?\((.*)?\)\((.*)?\)`)
+			matches := re.FindStringSubmatch(contractMethod)
+
+			if len(matches) != 4 {
+				log.Fatal("Invalid method format. Should be methodName(inType1,inType2,...)(outType1)")
+			}
+
+			methodName := matches[1]
+			methodTypes := matches[2]
+			outputTypes := matches[3]
+
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler)
+			response, err := contractService.ExecuteReadFunction(context.Background(), contractAddress, strings.Split(methodTypes, ","), strings.Split(outputTypes, ","), methodName, methodParams...)
 			if err != nil {
 				log.Fatal(err)
 			}
 
 			data, _ := json.MarshalIndent(response, "", "  ")
-			fmt.Println(string(data))
+			log.Println(string(data))
 		},
 	}
-
-	cmd.PersistentFlags().String("input-types", "", "Input types (comma separated)")
-	cmd.PersistentFlags().String("output-types", "", "Output types (comma separated)")
-
 	return cmd
 }
