@@ -11,7 +11,7 @@ builds:
 brews:
 - name: evm-cli
   homepage: https://github.com/idanya/homebrew-tools 
-  tap:
+  repository:
     owner: idanya
     name: homebrew-tools
     
