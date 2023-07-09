@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/idanya/evm-cli/clients/openchain"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/fireblocks/web3/utils/evm-cli/clients/openchain"
 )
 
 var (
