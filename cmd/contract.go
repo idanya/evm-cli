@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/idanya/evm-cli/clients/openchain"
 	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/cobra"
@@ -32,6 +33,7 @@ func (cc *ContractCommands) GetRootCommand() *cobra.Command {
 	command.AddCommand(cc.GetContractOpCodeCommand())
 	command.AddCommand(cc.GetContractFunctionListCommand())
 	command.AddCommand(cc.GetContractExecCommand())
+	command.AddCommand(cc.GetDecodeCallDataCommand())
 	command.AddCommand(cc.GetContractProxyImplementationCommand())
 
 	return command
@@ -84,7 +86,7 @@ func (cc *ContractCommands) GetContractFunctionListCommand() *cobra.Command {
 		Short: "Get function list",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler)
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
 
 			log.Printf("Checking if contract is proxy...")
 			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])
@@ -109,13 +111,35 @@ func (cc *ContractCommands) GetContractProxyImplementationCommand() *cobra.Comma
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 
-			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler)
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
 			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}
 
 			log.Printf("Implementation address: %s", implementationAddress)
+		},
+	}
+}
+
+func (cc *ContractCommands) GetDecodeCallDataCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "decode <calldata>",
+		Short: "Decode contract call data",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
+			decoded, err := contractService.DecodeContractCallData(context.Background(), args[0])
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			decodedJson, err := json.MarshalIndent(decoded, "", "  ")
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf("Decoded call data:\n\n%s", decodedJson)
 		},
 	}
 }
@@ -142,7 +166,7 @@ func (cc *ContractCommands) GetContractExecCommand() *cobra.Command {
 			methodTypes := matches[2]
 			outputTypes := matches[3]
 
-			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler)
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
 			response, err := contractService.ExecuteReadFunction(context.Background(), contractAddress, strings.Split(methodTypes, ","), strings.Split(outputTypes, ","), methodName, methodParams...)
 			if err != nil {
 				log.Fatal(err)
