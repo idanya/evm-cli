@@ -14,6 +14,8 @@ all: build
 build:
 	$(GOBUILD) $(GOFLAGS) -ldflags '$(LDFLAGS)' -o "evm-cli" main.go
 test: 
-	$(GOTEST) $(GOFLAGS) ./... -cover
+	$(GOTEST) $(GOFLAGS) ./... -cover -coverprofile=cover.out
+cover: test
+	$(GOCMD) tool cover -html=cover.out
 tidy:
 	$(GOMOD) tidy

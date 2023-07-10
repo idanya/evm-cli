@@ -87,6 +87,7 @@ func (cc *ContractCommands) GetContractFunctionListCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
+			
 
 			log.Printf("Checking if contract is proxy...")
 			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])

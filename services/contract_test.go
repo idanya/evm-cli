@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"math/big"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -75,4 +76,20 @@ func TestContractService_DecodeContractCallData_Tuples(t *testing.T) {
 
 	assert.Equal(t, "fulfillAdvancedOrder(((address,address,(uint8,address,uint256,uint256,uint256)[],(uint8,address,uint256,uint256,uint256,address)[],uint8,uint256,uint256,bytes32,uint256,bytes32,uint256),uint120,uint120,bytes,bytes),(uint256,uint8,uint256,uint256,bytes32[])[],bytes32,address)", decoded.Method)
 	assert.Equal(t, "0xe7acab24", decoded.Hash)
+}
+
+func TestExecuteReadFunction(t *testing.T) {
+	nodeClientMock := mocks.NewNodeClient(t)
+	nodeClientMock.On("ExecuteReadFunction", mock.Anything, "0x0", mock.Anything, "func",
+		common.HexToAddress("0xdac17f958d2ee523a2206206994597c13d831ec7"),
+		new(big.Int).SetUint64(10), new(big.Int).SetUint64(100), mock.Anything).Return([]interface{}{"OK"}, nil)
+
+	contractService := NewContractService(nodeClientMock, decompilerClient, openchain.NewClient())
+	response, err := contractService.ExecuteReadFunction(context.Background(), "0x0",
+		[]string{"address", "uint256", "int256", "bool"},
+		[]string{"address"}, "func", "0xdac17f958d2ee523a2206206994597c13d831ec7", "10", "100", "false")
+
+	assert.Nil(t, err)
+	assert.NotNil(t, response)
+	assert.Equal(t, "OK", response[0])
 }

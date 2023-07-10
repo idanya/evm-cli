@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"math/big"
 	"strconv"
 	"strings"
@@ -86,8 +85,7 @@ func (cs *ContractService) ExecuteReadFunction(context context.Context, contract
 			if len(param) > 2 && param[0:2] == "0x" {
 				castedParams[i] = common.HexToAddress(param)
 			}
-		case "uint256":
-		case "int256":
+		case "uint256", "int256":
 			if num, err := strconv.ParseUint(param, 10, 64); err == nil {
 				castedParams[i] = new(big.Int).SetUint64(num)
 			}
@@ -128,24 +126,6 @@ func (cs *ContractService) GetProxyImplementation(context context.Context, contr
 	}
 
 	return "", errors.New("Could not find proxy contract")
-}
-
-func (cs *ContractService) ExtractPublicInterfaceFunctions(context context.Context, contractAddress string) ([]*decompiler.TranslatedFunction, error) {
-	log.Printf("Checking if contract %s is a proxy...", contractAddress)
-
-	implementationAddress, err := cs.GetProxyImplementation(context, contractAddress)
-	if err == nil && implementationAddress != "" {
-		log.Printf("Contract is a proxy to %s", implementationAddress)
-	}
-
-	log.Printf("Fetching %s bytecode", contractAddress)
-	bytecode, err := cs.nodeClient.GetContractCode(context, contractAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Printf("Decoding %s function list", contractAddress)
-	return cs.decompiler.Decompile(bytecode)
 }
 
 func (cs *ContractService) queryForProxyImplementation(context context.Context, contractAddress string) (string, error) {

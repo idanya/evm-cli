@@ -12,6 +12,7 @@ import (
 
 type EthereumNodeClient struct {
 	client *ethclient.Client
+	rpc    string
 }
 
 func NewEthereumNodeClient(rpc string) *EthereumNodeClient {
@@ -21,7 +22,7 @@ func NewEthereumNodeClient(rpc string) *EthereumNodeClient {
 		panic(err)
 	}
 
-	return &EthereumNodeClient{client}
+	return &EthereumNodeClient{client, rpc}
 }
 
 func (c *EthereumNodeClient) ExecuteReadFunction(context context.Context, contractAddress string, abi *abi.ABI, functionName string, params ...interface{}) ([]interface{}, error) {

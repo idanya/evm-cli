@@ -1,3 +1,4 @@
 evm-cli
 .vscode/
 dist/
+cover.out
