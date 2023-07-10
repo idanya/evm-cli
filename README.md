@@ -1,3 +1,7 @@
+![Build](https://github.com/idanya/evm-cli/actions/workflows/go.yml/badge.svg?branch=main)
+![release](https://img.shields.io/github/v/release/idanya/evm-cli)
+
+
 # evm-cli
 A command line tool for inspecting Ethereum smart contracts, transactions and accounts.
 
