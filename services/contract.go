@@ -126,9 +126,10 @@ func (cs *ContractService) tryGetProxyImplementationByStorage(context context.Co
 			continue
 		}
 
-		logicContractAddress := common.Bytes2Hex(response)
-		if strings.HasPrefix(logicContractAddress, "0x") {
-			return logicContractAddress, nil
+		logicalAddress := common.BytesToAddress(response)
+
+		if logicalAddress.String() != "0x0000000000000000000000000000000000000000" {
+			return logicalAddress.String(), nil
 		}
 	}
 
