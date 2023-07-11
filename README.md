@@ -6,11 +6,38 @@
 A command line tool for inspecting Ethereum smart contracts, transactions and accounts.
 
 ### Install
-go install github.com/idanya/evm-cli@latest
 
-### TODO
-- [X] Detect minimal proxy by comparing on-chain bytecode to the minimal proxy template
-- [ ] optimize concurrency when detecting proxy
-- [ ] mock node responses for tests
-- [ ] `inspect` command for complete analysis of a contract
-- [ ] Extract dispatched logs (PUSH32 ?)
+#### Homebrew
+```
+brew tap idanya/tools
+brew install evm-cli
+```
+#### Go
+```
+go install github.com/idanya/evm-cli@latest
+```
+
+### Usage
+```
+$ evm-cli --help
+A CLI tool to interact with the EVM blockchains via JSON-RPC
+
+Usage:
+  evm-cli [flags]
+  evm-cli [command]
+
+Available Commands:
+  account     Account related commands
+  completion  Generate the autocompletion script for the specified shell
+  contract    Contract related commands
+  help        Help about any command
+  tx          Transaction related commands
+
+Flags:
+  -c, --chain-id uint    Chain ID of the blockchain (default 1)
+  -h, --help             help for evm-cli
+      --rpc-url string   node RPC endpoint (overrides the chain ID)
+
+Use "evm-cli [command] --help" for more information about a command.
+```
+
