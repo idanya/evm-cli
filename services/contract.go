@@ -10,8 +10,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/idanya/evm-cli/clients/directory"
 	"github.com/idanya/evm-cli/clients/nodes"
-	"github.com/idanya/evm-cli/clients/openchain"
 	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/idanya/evm-cli/entities"
 )
@@ -19,11 +19,12 @@ import (
 type ContractService struct {
 	nodeClient      nodes.NodeClient
 	decompiler      *decompiler.Decompiler
-	openchainClient *openchain.Client
+	directoryClient directory.DirectoryClient
 }
 
-func NewContractService(nodeClient nodes.NodeClient, decompiler *decompiler.Decompiler, openchainClient *openchain.Client) *ContractService {
-	return &ContractService{nodeClient, decompiler, openchainClient}
+func NewContractService(nodeClient nodes.NodeClient, decompiler *decompiler.Decompiler,
+	directoryClient directory.DirectoryClient) *ContractService {
+	return &ContractService{nodeClient, decompiler, directoryClient}
 }
 
 func (cs *ContractService) DecodeContractCallData(context context.Context, callData string) (*entities.DecodeResult, error) {
@@ -31,33 +32,19 @@ func (cs *ContractService) DecodeContractCallData(context context.Context, callD
 	methodFourBytes := fmt.Sprintf("0x%s", common.Bytes2Hex(payload[:4]))
 	methodPayload := payload[4:]
 
-	lookupFunction, err := cs.openchainClient.LookupFunction(methodFourBytes)
+	lookupFunction, err := cs.directoryClient.LookupFunction(methodFourBytes)
 	if err != nil {
 		return nil, err
 	}
 
-	selector, err := abi.ParseSelector(lookupFunction.Name)
-	if err != nil {
-		return nil, err
-	}
+	inArgs, unpacked, err := UnpackFromSelector(lookupFunction, methodPayload)
 
-	inArgs := make(abi.Arguments, len(selector.Inputs))
-	for i, arg := range selector.Inputs {
-		t, err := abi.NewType(arg.Type, arg.InternalType, arg.Components)
-		if err != nil {
-			return nil, err
-		}
-
-		inArgs[i] = abi.Argument{Name: arg.Name, Type: t, Indexed: arg.Indexed}
-	}
-
-	unpacked, err := inArgs.Unpack(methodPayload)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &entities.DecodeResult{}
-	result.Method = lookupFunction.Name
+	result.Method = lookupFunction
 	result.Hash = methodFourBytes
 	result.Arguments = make([]*entities.DecodedArgument, len(unpacked))
 	for i, arg := range unpacked {

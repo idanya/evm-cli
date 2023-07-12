@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/idanya/evm-cli/clients/directory/openchain"
+	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +54,8 @@ func (tx *TransactionCommands) GetTransactionReceiptCommand() *cobra.Command {
 		Short: "Get transaction receipt by hash",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			receipt, err := NodeClientFromViper().GetTransactionReceipt(context.Background(), args[0])
+			transactionService := services.NewTransactionService(NodeClientFromViper(), openchain.NewClient())
+			receipt, err := transactionService.GetTransactionReceipt(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}

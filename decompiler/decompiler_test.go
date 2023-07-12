@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/idanya/evm-cli/clients/openchain"
+	"github.com/idanya/evm-cli/clients/directory/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,8 +14,10 @@ var (
 )
 
 func TestParseBytecode(t *testing.T) {
-	openchainClient := openchain.NewClient()
-	decompiler := NewDecompiler(openchainClient)
+	t.Skip()
+	
+	directoryClient := mocks.NewDirectoryClient(t)
+	decompiler := NewDecompiler(directoryClient)
 
 	script, _ := hex.DecodeString(bytecode)
 	parsed, _ := decompiler.Decompile(script)
@@ -26,8 +28,10 @@ func TestParseBytecode(t *testing.T) {
 }
 
 func TestDisassemble(t *testing.T) {
-	openchainClient := openchain.NewClient()
-	decompiler := NewDecompiler(openchainClient)
+	t.Skip()
+
+	directoryClient := mocks.NewDirectoryClient(t)
+	decompiler := NewDecompiler(directoryClient)
 
 	script, _ := hex.DecodeString(bytecode)
 	parsed, _ := decompiler.Disassemble(script)

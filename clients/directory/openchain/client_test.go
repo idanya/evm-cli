@@ -28,7 +28,7 @@ func TestLookupFunction(t *testing.T) {
 	response, err := client.LookupFunction("0x8b477adb")
 	assert.Nil(t, err)
 	assert.NotNil(t, response)
-	assert.Equal(t, "transferFromByLegacy(address,address,address,uint256)", response.Name)
+	assert.Equal(t, "transferFromByLegacy(address,address,address,uint256)", response)
 }
 
 func TestLookupFunction_NotFound(t *testing.T) {
@@ -50,5 +50,5 @@ func TestLookupFunction_NotFound(t *testing.T) {
 
 	response, err := client.LookupFunction("0x8b477adb")
 	assert.NotNil(t, err)
-	assert.Nil(t, response)
+	assert.Equal(t, "", response)
 }

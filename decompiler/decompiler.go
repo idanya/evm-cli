@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/idanya/evm-cli/clients/openchain"
+	"github.com/idanya/evm-cli/clients/directory"
 )
 
 type TranslatedFunction struct {
@@ -19,11 +19,11 @@ func (t *TranslatedFunction) String() string {
 }
 
 type Decompiler struct {
-	openchainClient *openchain.Client
+	directoryClient directory.DirectoryClient
 }
 
-func NewDecompiler(openchainClient *openchain.Client) *Decompiler {
-	return &Decompiler{openchainClient}
+func NewDecompiler(directoryClient directory.DirectoryClient) *Decompiler {
+	return &Decompiler{directoryClient}
 }
 
 func (d *Decompiler) Decompile(bytecode []byte) ([]*TranslatedFunction, error) {
@@ -43,9 +43,9 @@ func (d *Decompiler) Decompile(bytecode []byte) ([]*TranslatedFunction, error) {
 		go func(f string) {
 			defer wg.Done()
 
-			lookupFunc, err := d.openchainClient.LookupFunction(f)
+			lookupFunc, err := d.directoryClient.LookupFunction(f)
 			if err == nil {
-				translated = append(translated, &TranslatedFunction{Hash: f, Signature: lookupFunc.Name})
+				translated = append(translated, &TranslatedFunction{Hash: f, Signature: lookupFunc})
 			} else {
 				translated = append(translated, &TranslatedFunction{Hash: f, Signature: "unknown"})
 			}

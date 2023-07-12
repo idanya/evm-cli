@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/idanya/evm-cli/clients/openchain"
+	"github.com/idanya/evm-cli/clients/directory/openchain"
 	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/cobra"
@@ -87,7 +87,6 @@ func (cc *ContractCommands) GetContractFunctionListCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
-			
 
 			log.Printf("Checking if contract is proxy...")
 			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])
