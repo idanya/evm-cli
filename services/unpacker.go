@@ -24,6 +24,9 @@ func ArgumentsFromSelector(funcSig string) (abi.Arguments, error) {
 
 func UnpackFromSelector(funcSig string, methodPayload []byte) (abi.Arguments, []interface{}, error) {
 	inArgs, err := ArgumentsFromSelector(funcSig)
+	if err != nil {
+		return nil, nil, err
+	}
 	unpacked, err := inArgs.Unpack(methodPayload)
 	return inArgs, unpacked, err
 }

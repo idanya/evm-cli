@@ -33,11 +33,11 @@ func (ts *TransactionService) GetTransactionReceipt(context context.Context, txH
 		if err != nil {
 			continue
 		}
-		enrichedLogs = append(enrichedLogs, &entities.EnrichedReceiptLog{log, event})
+		enrichedLogs = append(enrichedLogs, &entities.EnrichedReceiptLog{Log: log, FunctionSelector: event})
 
 	}
 
-	enrichedReceipt := &entities.EnrichedReceipt{receipt, enrichedLogs}
+	enrichedReceipt := &entities.EnrichedReceipt{Receipt: receipt, Logs: enrichedLogs}
 
 	return enrichedReceipt, nil
 }
