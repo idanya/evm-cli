@@ -41,3 +41,22 @@ Flags:
 Use "evm-cli [command] --help" for more information about a command.
 ```
 
+### Account commands
+```
+nonce       Get account nonce
+```
+
+### Transactions commands
+```
+info        Get transaction data by hash
+receipt     Get transaction receipt by hash
+```
+
+### Contract commands
+```
+decode      Decode contract call data
+exec        Run contract readonly method
+func-list   Get function list
+opcode      Get opcode
+proxy       Get proxy implementation address
+```

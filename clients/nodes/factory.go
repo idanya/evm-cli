@@ -13,5 +13,5 @@ func NodeClientFactory(chainId uint, rpcUrl string) *EthereumNodeClient {
 	} else if rpc, ok := ChainRpc[chainId]; ok {
 		return NewEthereumNodeClient(rpc)
 	}
-	panic("rpcUrl is not provided")
+	panic("rpcUrl was not provided and chainId is not supported. Please provide a valid --rpc-url")
 }
