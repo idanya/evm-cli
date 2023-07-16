@@ -25,7 +25,7 @@ func Execute(decompiler *decompiler.Decompiler) {
 	viper.BindPFlag("chainId", rootCmd.PersistentFlags().Lookup("chain-id"))
 	viper.BindPFlag("rpcUrl", rootCmd.PersistentFlags().Lookup("rpc-url"))
 
-	tx := NewTransactionCommands()
+	tx := NewTransactionCommands(decompiler)
 	rootCmd.AddCommand(tx.GetRootCommand())
 
 	accountCmd := NewAccountCommands()

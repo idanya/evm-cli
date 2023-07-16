@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/idanya/evm-cli/clients/directory"
 	"github.com/idanya/evm-cli/clients/nodes"
 	"github.com/idanya/evm-cli/entities"
@@ -11,10 +12,13 @@ import (
 type TransactionService struct {
 	nodeClient      nodes.NodeClient
 	directoryClient directory.DirectoryClient
+	contractService *ContractService
 }
 
-func NewTransactionService(nodeClient nodes.NodeClient, directoryClient directory.DirectoryClient) *TransactionService {
-	return &TransactionService{nodeClient, directoryClient}
+func NewTransactionService(nodeClient nodes.NodeClient,
+	directoryClient directory.DirectoryClient,
+	contractService *ContractService) *TransactionService {
+	return &TransactionService{nodeClient, directoryClient, contractService}
 }
 
 func (ts *TransactionService) GetTransactionReceipt(context context.Context, txHash string) (*entities.EnrichedReceipt, error) {
@@ -40,4 +44,18 @@ func (ts *TransactionService) GetTransactionReceipt(context context.Context, txH
 	enrichedReceipt := &entities.EnrichedReceipt{Receipt: receipt, Logs: enrichedLogs}
 
 	return enrichedReceipt, nil
+}
+
+func (ts *TransactionService) GetTransactionByHash(context context.Context, txHash string) (*entities.EnrichedTxInfo, error) {
+	transaction, err := ts.nodeClient.GetTransactionByHash(context, txHash)
+	if err != nil {
+		return nil, err
+	}
+
+	decoded, err := ts.contractService.DecodeContractCallData(context, common.Bytes2Hex(transaction.Data()))
+	if err == nil {
+		return &entities.EnrichedTxInfo{Transaction: transaction, DecodedData: decoded}, nil
+	}
+
+	return &entities.EnrichedTxInfo{Transaction: transaction}, nil
 }
