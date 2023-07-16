@@ -4,20 +4,22 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/idanya/evm-cli/clients/directory"
 	decompiler "github.com/idanya/evm-cli/decompiler"
+	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "evm-cli",
-	Short: "A CLI tool to interact with the EVM blockchains via JSON-RPC",
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
-}
+func Execute(directoryClient directory.DirectoryClient, decompiler *decompiler.Decompiler, decoder *services.Decoder) {
 
-func Execute(decompiler *decompiler.Decompiler) {
+	rootCmd := &cobra.Command{
+		Use:   "evm-cli",
+		Short: "A CLI tool to interact with the EVM blockchains via JSON-RPC",
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		},
+	}
 
 	rootCmd.PersistentFlags().UintP("chain-id", "c", 1, "Chain ID of the blockchain")
 	rootCmd.PersistentFlags().String("rpc-url", "", "node RPC endpoint (overrides the chain ID)")
@@ -25,13 +27,18 @@ func Execute(decompiler *decompiler.Decompiler) {
 	viper.BindPFlag("chainId", rootCmd.PersistentFlags().Lookup("chain-id"))
 	viper.BindPFlag("rpcUrl", rootCmd.PersistentFlags().Lookup("rpc-url"))
 
-	tx := NewTransactionCommands(decompiler)
+	nodeClient := NodeClientFromViper()
+	contractService := services.NewContractService(nodeClient, decompiler, decoder)
+
+	transactionService := services.NewTransactionService(nodeClient, directoryClient, decoder)
+
+	tx := NewTransactionCommands(transactionService)
 	rootCmd.AddCommand(tx.GetRootCommand())
 
-	accountCmd := NewAccountCommands()
+	accountCmd := NewAccountCommands(nodeClient)
 	rootCmd.AddCommand(accountCmd.GetRootCommand())
 
-	contractCmd := NewContractCommands(decompiler)
+	contractCmd := NewContractCommands(contractService, decompiler, decoder)
 	rootCmd.AddCommand(contractCmd.GetRootCommand())
 
 	if err := rootCmd.Execute(); err != nil {

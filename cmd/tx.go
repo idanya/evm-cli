@@ -6,18 +6,16 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/idanya/evm-cli/clients/directory/openchain"
-	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/cobra"
 )
 
 type TransactionCommands struct {
-	decompiler *decompiler.Decompiler
+	transactionService *services.TransactionService
 }
 
-func NewTransactionCommands(decompiler *decompiler.Decompiler) *TransactionCommands {
-	return &TransactionCommands{decompiler}
+func NewTransactionCommands(transactionService *services.TransactionService) *TransactionCommands {
+	return &TransactionCommands{transactionService}
 }
 
 func (tx *TransactionCommands) GetRootCommand() *cobra.Command {
@@ -39,7 +37,7 @@ func (tx *TransactionCommands) GetTransactionDataCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 
-			tx, err := tx.getTransactionService().GetTransactionByHash(context.Background(), args[0])
+			tx, err := tx.transactionService.GetTransactionByHash(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -56,7 +54,7 @@ func (tx *TransactionCommands) GetTransactionReceiptCommand() *cobra.Command {
 		Short: "Get transaction receipt by hash",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			receipt, err := tx.getTransactionService().GetTransactionReceipt(context.Background(), args[0])
+			receipt, err := tx.transactionService.GetTransactionReceipt(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -65,10 +63,4 @@ func (tx *TransactionCommands) GetTransactionReceiptCommand() *cobra.Command {
 			fmt.Println(string(data))
 		},
 	}
-}
-
-func (tx *TransactionCommands) getTransactionService() *services.TransactionService {
-	openchainClient := openchain.NewClient()
-	decoder := services.NewDecoder(openchainClient)
-	return services.NewTransactionService(NodeClientFromViper(), openchainClient, decoder)
 }

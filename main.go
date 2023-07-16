@@ -4,11 +4,14 @@ import (
 	"github.com/idanya/evm-cli/clients/directory/openchain"
 	"github.com/idanya/evm-cli/cmd"
 	decompiler "github.com/idanya/evm-cli/decompiler"
+	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/viper"
 )
 
 var (
-	decompilerClient = decompiler.NewDecompiler(openchain.NewClient())
+	openChainClient  = openchain.NewClient()
+	decompilerClient = decompiler.NewDecompiler(openChainClient)
+	decoder          = services.NewDecoder(openChainClient)
 )
 
 func init() {
@@ -16,5 +19,5 @@ func init() {
 }
 
 func main() {
-	cmd.Execute(decompilerClient)
+	cmd.Execute(openChainClient, decompilerClient, decoder)
 }
