@@ -3,7 +3,7 @@ package openchain
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -37,7 +37,7 @@ func (c *Client) lookupEntity(entityType EntityType, hash string) (string, error
 
 	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}

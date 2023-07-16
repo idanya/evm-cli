@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 	"errors"
-	"io/ioutil"
 	"math/big"
+	"os"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -73,7 +73,7 @@ func TestExecuteReadFunction(t *testing.T) {
 }
 
 func TestGetContractStandards(t *testing.T) {
-	file, _ := ioutil.ReadFile("../assets/FiatTokenV2.hex")	
+	file, _ := os.ReadFile("../assets/FiatTokenV2.hex")
 	erc20Code := common.Hex2Bytes(string(file))
 
 	directoryClientMock := dirmock.NewDirectoryClient(t)

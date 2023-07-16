@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 )
 
 func openInEditor(text []byte) error {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "evm-cli-")
+	tmpFile, err := os.CreateTemp(os.TempDir(), "evm-cli-")
 	if err != nil {
 		log.Fatal("Cannot create temporary file", err)
 	}
