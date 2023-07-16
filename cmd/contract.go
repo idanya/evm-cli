@@ -86,7 +86,8 @@ func (cc *ContractCommands) GetContractFunctionListCommand() *cobra.Command {
 		Short: "Get function list",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
+			decoder := services.NewDecoder(openchain.NewClient())
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, decoder)
 
 			log.Printf("Checking if contract is proxy...")
 			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])
@@ -111,7 +112,8 @@ func (cc *ContractCommands) GetContractProxyImplementationCommand() *cobra.Comma
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 
-			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
+			decoder := services.NewDecoder(openchain.NewClient())
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, decoder)
 			implementationAddress, err := contractService.GetProxyImplementation(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
@@ -128,9 +130,8 @@ func (cc *ContractCommands) GetDecodeCallDataCommand() *cobra.Command {
 		Short: "Decode contract call data",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-
-			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
-			decoded, err := contractService.DecodeContractCallData(context.Background(), args[0])
+			decoder := services.NewDecoder(openchain.NewClient())
+			decoded, err := decoder.DecodeContractCallData(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -166,7 +167,9 @@ func (cc *ContractCommands) GetContractExecCommand() *cobra.Command {
 			methodTypes := matches[2]
 			outputTypes := matches[3]
 
-			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, openchain.NewClient())
+			decoder := services.NewDecoder(openchain.NewClient())
+			contractService := services.NewContractService(NodeClientFromViper(), cc.decompiler, decoder)
+
 			response, err := contractService.ExecuteReadFunction(context.Background(), contractAddress, strings.Split(methodTypes, ","), strings.Split(outputTypes, ","), methodName, methodParams...)
 			if err != nil {
 				log.Fatal(err)

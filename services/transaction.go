@@ -12,13 +12,13 @@ import (
 type TransactionService struct {
 	nodeClient      nodes.NodeClient
 	directoryClient directory.DirectoryClient
-	contractService *ContractService
+	decoder         *Decoder
 }
 
 func NewTransactionService(nodeClient nodes.NodeClient,
 	directoryClient directory.DirectoryClient,
-	contractService *ContractService) *TransactionService {
-	return &TransactionService{nodeClient, directoryClient, contractService}
+	decoder *Decoder) *TransactionService {
+	return &TransactionService{nodeClient, directoryClient, decoder}
 }
 
 func (ts *TransactionService) GetTransactionReceipt(context context.Context, txHash string) (*entities.EnrichedReceipt, error) {
@@ -52,7 +52,7 @@ func (ts *TransactionService) GetTransactionByHash(context context.Context, txHa
 		return nil, err
 	}
 
-	decoded, err := ts.contractService.DecodeContractCallData(context, common.Bytes2Hex(transaction.Data()))
+	decoded, err := ts.decoder.DecodeContractCallData(context, common.Bytes2Hex(transaction.Data()))
 	if err == nil {
 		return &entities.EnrichedTxInfo{Transaction: transaction, DecodedData: decoded}, nil
 	}

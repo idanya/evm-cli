@@ -69,6 +69,6 @@ func (tx *TransactionCommands) GetTransactionReceiptCommand() *cobra.Command {
 
 func (tx *TransactionCommands) getTransactionService() *services.TransactionService {
 	openchainClient := openchain.NewClient()
-	contractService := services.NewContractService(NodeClientFromViper(), tx.decompiler, openchainClient)
-	return services.NewTransactionService(NodeClientFromViper(), openchainClient, contractService)
+	decoder := services.NewDecoder(openchainClient)
+	return services.NewTransactionService(NodeClientFromViper(), openchainClient, decoder)
 }

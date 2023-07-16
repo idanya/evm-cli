@@ -3,59 +3,24 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/idanya/evm-cli/clients/directory"
 	"github.com/idanya/evm-cli/clients/nodes"
 	decompiler "github.com/idanya/evm-cli/decompiler"
-	"github.com/idanya/evm-cli/entities"
 )
 
 type ContractService struct {
-	nodeClient      nodes.NodeClient
-	decompiler      *decompiler.Decompiler
-	directoryClient directory.DirectoryClient
+	nodeClient nodes.NodeClient
+	decompiler *decompiler.Decompiler
+	decoder    *Decoder
 }
 
-func NewContractService(nodeClient nodes.NodeClient, decompiler *decompiler.Decompiler,
-	directoryClient directory.DirectoryClient) *ContractService {
-	return &ContractService{nodeClient, decompiler, directoryClient}
-}
-
-func (cs *ContractService) DecodeContractCallData(context context.Context, callData string) (*entities.DecodeResult, error) {
-	payload := common.FromHex(callData)
-	methodFourBytes := fmt.Sprintf("0x%s", common.Bytes2Hex(payload[:4]))
-	methodPayload := payload[4:]
-
-	lookupFunction, err := cs.directoryClient.LookupFunction(methodFourBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	inArgs, unpacked, err := UnpackFromSelector(lookupFunction, methodPayload)
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := &entities.DecodeResult{}
-	result.Method = lookupFunction
-	result.Hash = methodFourBytes
-	result.Arguments = make([]*entities.DecodedArgument, len(unpacked))
-	for i, arg := range unpacked {
-		result.Arguments[i] = cs.toDecodedArgument(inArgs[i], arg)
-	}
-
-	return result, nil
-}
-
-func (cs *ContractService) toDecodedArgument(argument abi.Argument, value interface{}) *entities.DecodedArgument {
-	return &entities.DecodedArgument{Name: argument.Name, Value: value, Type: argument.Type.String()}
+func NewContractService(nodeClient nodes.NodeClient, decompiler *decompiler.Decompiler, decoder *Decoder) *ContractService {
+	return &ContractService{nodeClient, decompiler, decoder}
 }
 
 func (cs *ContractService) ExecuteReadFunction(context context.Context, contractAddress string, inputTypes []string, outputTypes []string, functionName string, params ...string) ([]interface{}, error) {
