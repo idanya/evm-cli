@@ -2,15 +2,25 @@ package services
 
 import (
 	"context"
+	_ "embed"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/idanya/evm-cli/clients/nodes"
 	decompiler "github.com/idanya/evm-cli/decompiler"
+	"github.com/idanya/evm-cli/entities"
+)
+
+var (
+	//go:embed standards.json
+	standardsFile []byte
 )
 
 type ContractService struct {
@@ -149,4 +159,53 @@ func (cs *ContractService) generateMethodABI(functionName string, inputTypes []s
 	return &abi.ABI{
 		Methods: map[string]abi.Method{method.Name: method},
 	}, nil
+}
+
+func (cs *ContractService) GetContractStandards(context context.Context, contractAddress string) ([]string, error) {
+	matchingStandards := make([]string, 0)
+	contractCode, err := cs.nodeClient.GetContractCode(context, contractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	funcList, err := cs.decompiler.Decompile(contractCode)
+	if err != nil {
+		return nil, err
+	}
+
+	contractFunctionHashes := make(map[string]*decompiler.TranslatedFunction)
+	for _, function := range funcList {
+		contractFunctionHashes[function.Hash] = function
+	}
+
+	standards := cs.getStandardsDef()
+	for _, standard := range standards {
+		pass := true
+		for _, hash := range standard.FunctionHashes {
+			if _, ok := contractFunctionHashes[hash]; !ok {
+				pass = false
+				break
+			}
+		}
+		if pass {
+			matchingStandards = append(matchingStandards, standard.Name)
+		}
+	}
+
+	return matchingStandards, nil
+}
+
+func (cs *ContractService) getStandardsDef() entities.TokenStandards {
+	var standards entities.TokenStandards
+	_ = json.Unmarshal(standardsFile, &standards)
+
+	for _, standard := range standards {
+		standard.FunctionHashes = make([]string, len(standard.FunctionList))
+		for i, function := range standard.FunctionList {
+			hash := crypto.Keccak256Hash([]byte(function))
+			standard.FunctionHashes[i] = fmt.Sprintf("0x%s", common.Bytes2Hex(hash.Bytes()[:4]))
+		}
+	}
+
+	return standards
 }

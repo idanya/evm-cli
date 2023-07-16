@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"math/big"
 	"testing"
 
@@ -69,4 +70,23 @@ func TestExecuteReadFunction(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, response)
 	assert.Equal(t, "OK", response[0])
+}
+
+func TestGetContractStandards(t *testing.T) {
+	file, _ := ioutil.ReadFile("../assets/FiatTokenV2.hex")	
+	erc20Code := common.Hex2Bytes(string(file))
+
+	directoryClientMock := dirmock.NewDirectoryClient(t)
+	decoder := NewDecoder(directoryClientMock)
+	decompilerClient := decompiler.NewDecompiler(directoryClientMock)
+
+	nodeClientMock := mocks.NewNodeClient(t)
+	nodeClientMock.On("GetContractCode", mock.Anything, "0x0").Return(erc20Code, nil)
+
+	contractService := NewContractService(nodeClientMock, decompilerClient, decoder)
+	standards, err := contractService.GetContractStandards(context.Background(), "0x0")
+	assert.Nil(t, err)
+	assert.NotNil(t, standards)
+	assert.Equal(t, 1, len(standards))
+	assert.Equal(t, "ERC20", standards[0])
 }

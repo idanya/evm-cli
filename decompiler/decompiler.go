@@ -33,6 +33,19 @@ func (d *Decompiler) Decompile(bytecode []byte) ([]*TranslatedFunction, error) {
 	if err != nil {
 		return nil, err
 	}
+	for _, f := range funcs {
+		translated = append(translated, &TranslatedFunction{Hash: f, Signature: "unknown"})
+	}
+	return translated, nil
+}
+
+func (d *Decompiler) DecompileWithLookup(bytecode []byte) ([]*TranslatedFunction, error) {
+	translated := make([]*TranslatedFunction, 0)
+
+	funcs, err := d.extractPush4bytes(bytecode)
+	if err != nil {
+		return nil, err
+	}
 
 	var wg sync.WaitGroup
 

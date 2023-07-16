@@ -1,0 +1,39 @@
+[
+  {
+    "name": "ERC20",
+    "functionList": [
+      "totalSupply()",
+      "balanceOf(address)",
+      "transfer(address,uint256)",
+      "allowance(address,address)",
+      "approve(address,uint256)",
+      "transferFrom(address,address,uint256)",
+      "increaseAllowance(address,uint256)",
+      "decreaseAllowance(address,uint256)"
+    ]
+  },
+  {
+    "name": "ERC721",
+    "functionList": [
+      "balanceOf(address)",
+      "ownerOf(uint256)",
+      "approve(address,uint256)",
+      "getApproved(uint256)",
+      "setApprovalForAll(address,bool)",
+      "isApprovedForAll(address,address)",
+      "transferFrom(address,address,uint256)",
+      "safeTransferFrom(address,address,uint256)",
+      "safeTransferFrom(address,address,uint256,bytes)"
+    ]
+  },
+  {
+    "name": "ERC1155",
+    "functionList": [      
+      "balanceOfBatch(address[],uint256[])",
+      "setApprovalForAll(address,bool)",
+      "isApprovedForAll(address,address)",
+      "safeTransferFrom(address,address,uint256,uint256,bytes)",
+      "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"
+    ]
+  }
+]

@@ -36,6 +36,7 @@ func (cc *ContractCommands) GetRootCommand() *cobra.Command {
 	command.AddCommand(cc.GetContractExecCommand())
 	command.AddCommand(cc.GetDecodeCallDataCommand())
 	command.AddCommand(cc.GetContractProxyImplementationCommand())
+	command.AddCommand(cc.GetContractStandardsCommand())
 
 	return command
 }
@@ -71,7 +72,7 @@ func (cc *ContractCommands) printContractFunctions(contractAddress string) {
 	}
 
 	log.Printf("Decoding 4byte function list")
-	funcList, err := cc.decompiler.Decompile(bytecode)
+	funcList, err := cc.decompiler.DecompileWithLookup(bytecode)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -138,6 +139,25 @@ func (cc *ContractCommands) GetDecodeCallDataCommand() *cobra.Command {
 			log.Printf("Decoded call data:\n\n%s", decodedJson)
 		},
 	}
+}
+
+func (cc *ContractCommands) GetContractStandardsCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "std <address>",
+		Short: "Get contract compatible standards",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			contractAddress := args[0]
+			standards, err := cc.contractService.GetContractStandards(context.Background(), contractAddress)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			data, _ := json.MarshalIndent(standards, "", "  ")
+			log.Println(string(data))
+		},
+	}
+	return cmd
 }
 
 func (cc *ContractCommands) GetContractExecCommand() *cobra.Command {
