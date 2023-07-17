@@ -12,7 +12,7 @@ import (
 type TransactionService struct {
 	nodeClient      nodes.NodeClient
 	directoryClient directory.DirectoryClient
-	decoder         *Decoder
+	decoder *Decoder
 }
 
 func NewTransactionService(nodeClient nodes.NodeClient,
