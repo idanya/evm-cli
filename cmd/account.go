@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/idanya/evm-cli/clients/nodes"
+	"github.com/idanya/evm-cli/entities"
 	"github.com/spf13/cobra"
 )
 
 type AccountCommands struct {
-	nodeClient nodes.NodeClient
+	nodeClientGenerator entities.NodeClientGenerator
 }
 
-func NewAccountCommands(nodeClient nodes.NodeClient) *AccountCommands {
-	return &AccountCommands{nodeClient}
+func NewAccountCommands(nodeClientGenerator entities.NodeClientGenerator) *AccountCommands {
+	return &AccountCommands{nodeClientGenerator}
 }
 
 func (ac *AccountCommands) GetRootCommand() *cobra.Command {
@@ -33,7 +33,7 @@ func (ac *AccountCommands) GetAccountNonceCommand() *cobra.Command {
 		Short: "Get account nonce",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			count, err := ac.nodeClient.GetAccountNonce(context.Background(), args[0])
+			count, err := ac.nodeClientGenerator().GetAccountNonce(context.Background(), args[0])
 			if err != nil {
 				log.Fatal(err)
 			}

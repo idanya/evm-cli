@@ -5,24 +5,23 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/idanya/evm-cli/clients/directory"
-	"github.com/idanya/evm-cli/clients/nodes"
 	"github.com/idanya/evm-cli/entities"
 )
 
 type TransactionService struct {
-	nodeClient      nodes.NodeClient
-	directoryClient directory.DirectoryClient
-	decoder *Decoder
+	nodeClientGenerator entities.NodeClientGenerator
+	directoryClient     directory.DirectoryClient
+	decoder             *Decoder
 }
 
-func NewTransactionService(nodeClient nodes.NodeClient,
+func NewTransactionService(nodeClientGenerator entities.NodeClientGenerator,
 	directoryClient directory.DirectoryClient,
 	decoder *Decoder) *TransactionService {
-	return &TransactionService{nodeClient, directoryClient, decoder}
+	return &TransactionService{nodeClientGenerator, directoryClient, decoder}
 }
 
 func (ts *TransactionService) GetTransactionReceipt(context context.Context, txHash string) (*entities.EnrichedReceipt, error) {
-	receipt, err := ts.nodeClient.GetTransactionReceipt(context, txHash)
+	receipt, err := ts.nodeClientGenerator().GetTransactionReceipt(context, txHash)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +46,7 @@ func (ts *TransactionService) GetTransactionReceipt(context context.Context, txH
 }
 
 func (ts *TransactionService) GetTransactionByHash(context context.Context, txHash string) (*entities.EnrichedTxInfo, error) {
-	transaction, err := ts.nodeClient.GetTransactionByHash(context, txHash)
+	transaction, err := ts.nodeClientGenerator().GetTransactionByHash(context, txHash)
 	if err != nil {
 		return nil, err
 	}

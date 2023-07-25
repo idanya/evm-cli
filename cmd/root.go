@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/idanya/evm-cli/clients/directory"
+	"github.com/idanya/evm-cli/clients/nodes"
 	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/idanya/evm-cli/services"
 	"github.com/spf13/cobra"
@@ -27,15 +28,15 @@ func Execute(directoryClient directory.DirectoryClient, decompiler *decompiler.D
 	viper.BindPFlag("chainId", rootCmd.PersistentFlags().Lookup("chain-id"))
 	viper.BindPFlag("rpcUrl", rootCmd.PersistentFlags().Lookup("rpc-url"))
 
-	nodeClient := NodeClientFromViper()
-	contractService := services.NewContractService(nodeClient, decompiler, decoder)
+	nodeGenerator := func() nodes.NodeClient { return NodeClientFromViper() }
 
-	transactionService := services.NewTransactionService(nodeClient, directoryClient, decoder)
+	contractService := services.NewContractService(nodeGenerator, decompiler, decoder)
+	transactionService := services.NewTransactionService(nodeGenerator, directoryClient, decoder)
 
 	tx := NewTransactionCommands(transactionService)
 	rootCmd.AddCommand(tx.GetRootCommand())
 
-	accountCmd := NewAccountCommands(nodeClient)
+	accountCmd := NewAccountCommands(nodeGenerator)
 	rootCmd.AddCommand(accountCmd.GetRootCommand())
 
 	contractCmd := NewContractCommands(contractService, decompiler, decoder)

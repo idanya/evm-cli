@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+
 func NodeClientFromViper() *nodes.EthereumNodeClient {
 	chainId := viper.GetUint("chainId")
 	rpcUrl := viper.GetString("rpcUrl")

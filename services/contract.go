@@ -13,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/idanya/evm-cli/clients/nodes"
 	decompiler "github.com/idanya/evm-cli/decompiler"
 	"github.com/idanya/evm-cli/entities"
 )
@@ -24,13 +23,13 @@ var (
 )
 
 type ContractService struct {
-	nodeClient nodes.NodeClient
-	decompiler *decompiler.Decompiler
-	decoder    *Decoder
+	nodeClientGenerator entities.NodeClientGenerator
+	decompiler          *decompiler.Decompiler
+	decoder             *Decoder
 }
 
-func NewContractService(nodeClient nodes.NodeClient, decompiler *decompiler.Decompiler, decoder *Decoder) *ContractService {
-	return &ContractService{nodeClient, decompiler, decoder}
+func NewContractService(nodeClientGenerator entities.NodeClientGenerator, decompiler *decompiler.Decompiler, decoder *Decoder) *ContractService {
+	return &ContractService{nodeClientGenerator, decompiler, decoder}
 }
 
 func (cs *ContractService) ExecuteReadFunction(context context.Context, contractAddress string, inputTypes []string, outputTypes []string, functionName string, params ...string) ([]interface{}, error) {
@@ -62,7 +61,7 @@ func (cs *ContractService) ExecuteReadFunction(context context.Context, contract
 		}
 	}
 
-	return cs.nodeClient.ExecuteReadFunction(context, contractAddress, abi, functionName, castedParams...)
+	return cs.nodeClientGenerator().ExecuteReadFunction(context, contractAddress, abi, functionName, castedParams...)
 }
 
 func (cs *ContractService) GetProxyImplementation(context context.Context, contractAddress string) (string, error) {
@@ -79,7 +78,7 @@ func (cs *ContractService) GetProxyImplementation(context context.Context, contr
 	EIP_1167_BYTECODE_PREFIX := "363d3d373d3d3d363d73"
 	EIP_1167_BYTECODE_SUFFIX := "5af43d82803e903d91602b57fd5bf3"
 
-	contractCode, err := cs.nodeClient.GetContractCode(context, contractAddress)
+	contractCode, err := cs.nodeClientGenerator().GetContractCode(context, contractAddress)
 	if err == nil {
 		hexCode := common.Bytes2Hex(contractCode)
 		if strings.HasPrefix(hexCode, EIP_1167_BYTECODE_PREFIX) && strings.HasSuffix(hexCode, EIP_1167_BYTECODE_SUFFIX) {
@@ -112,7 +111,7 @@ func (cs *ContractService) tryGetProxyImplementationByStorage(context context.Co
 		OPEN_ZEPPELIN_IMPLEMENTATION_SLOT, EIP_1822_LOGIC_SLOT}
 
 	for _, slot := range storageSlots {
-		response, err := cs.nodeClient.GetContractStorageSlot(context, contractAddress, slot)
+		response, err := cs.nodeClientGenerator().GetContractStorageSlot(context, contractAddress, slot)
 		if err != nil {
 			continue
 		}
@@ -163,7 +162,7 @@ func (cs *ContractService) generateMethodABI(functionName string, inputTypes []s
 
 func (cs *ContractService) GetContractStandards(context context.Context, contractAddress string) ([]string, error) {
 	matchingStandards := make([]string, 0)
-	contractCode, err := cs.nodeClient.GetContractCode(context, contractAddress)
+	contractCode, err := cs.nodeClientGenerator().GetContractCode(context, contractAddress)
 	if err != nil {
 		return nil, err
 	}
